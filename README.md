@@ -70,6 +70,28 @@ Build and run:
 
 You’ll see a 🍣 icon appear in the macOS menu bar. Click it to open the TempurAI popover.
 
+## Building for Release
+
+To build a signed and notarized DMG for distribution:
+
+1. **Set up your Apple Developer credentials** (as environment variables):
+   ```bash
+   export NOTARIZATION_ACCOUNT="your-apple-id@example.com"
+   export NOTARIZATION_PASSWORD="your-app-specific-password"
+   export APPLE_TEAM_ID="your-team-id"
+   export DEVELOPER_ID_APPLICATION="your-cert-hash"
+   ```
+
+2. **Run the build script**:
+   ```bash
+   ./build-release.sh
+   ```
+
+3. **Find your DMG**:
+   The signed and notarized DMG will be created in the `dist/` directory.
+
+**Security Note**: Never commit your Apple Developer credentials to version control. The build script uses environment variables to keep your credentials secure and out of the repository.
+
 ---
 
 ## Usage

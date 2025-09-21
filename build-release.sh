@@ -3,9 +3,13 @@
 # Configuration - Update these with your values
 APP_NAME="TempurAI"
 BUNDLE_ID="com.setrf.tempur"      # Your unique bundle ID
-DEVELOPER_ID="setrf34@gmail.com"  # Your Apple Developer name
-NOTARIZATION_ACCOUNT="setrf34@gmail.com"  # Your Apple ID
-APPLE_TEAM_ID="7NEZN4WP6L"        # Your Team ID
+
+# Apple Developer credentials - Set these as environment variables
+DEVELOPER_ID="${DEVELOPER_ID:-}"  # Your Apple Developer name/email
+NOTARIZATION_ACCOUNT="${NOTARIZATION_ACCOUNT:-}"  # Your Apple ID email
+APPLE_TEAM_ID="${APPLE_TEAM_ID:-}"  # Your Team ID
+NOTARIZATION_PASSWORD="${NOTARIZATION_PASSWORD:-}"  # Your app-specific password
+DEVELOPER_ID_APPLICATION="${DEVELOPER_ID_APPLICATION:-}"  # Your Developer ID Application certificate hash
 
 # Colors for output
 RED='\033[0;31m'
@@ -70,7 +74,11 @@ EOF
 # Code sign the app
 echo -e "${YELLOW}🔐 Code signing application...${NC}"
 # Use the Developer ID Application certificate
-DEVELOPER_ID_APPLICATION="81FCC2A7318EFD8C62200F4CA0EEB3B7C95BF868"
+if [ -z "$DEVELOPER_ID_APPLICATION" ]; then
+    echo -e "${RED}❌ Error: DEVELOPER_ID_APPLICATION not set${NC}"
+    echo -e "${YELLOW}💡 Set your Developer ID Application certificate hash in DEVELOPER_ID_APPLICATION${NC}"
+    exit 1
+fi
 
 codesign --force --deep --options runtime --sign "$DEVELOPER_ID_APPLICATION" --entitlements entitlements.plist "$APP_BUNDLE"
 
@@ -95,15 +103,27 @@ if [ -z "$NOTARIZATION_ACCOUNT" ]; then
     exit 1
 fi
 
+if [ -z "$NOTARIZATION_PASSWORD" ]; then
+    echo -e "${RED}❌ Error: NOTARIZATION_PASSWORD not set${NC}"
+    echo -e "${YELLOW}💡 Set your app-specific password in NOTARIZATION_PASSWORD${NC}"
+    exit 1
+fi
+
+if [ -z "$APPLE_TEAM_ID" ]; then
+    echo -e "${RED}❌ Error: APPLE_TEAM_ID not set${NC}"
+    echo -e "${YELLOW}💡 Set your Apple Team ID in APPLE_TEAM_ID${NC}"
+    exit 1
+fi
+
 echo -e "${GREEN}✅ Using Developer ID Application certificate for notarization${NC}"
 
 # Submit for notarization
-NOTARIZATION_UUID=$(xcrun notarytool submit "$DMG_NAME" --apple-id "$NOTARIZATION_ACCOUNT" --password "ngcx-mlls-ngmm-tzgw" --team-id "$APPLE_TEAM_ID" --wait | grep -o '[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}' | head -1)
+NOTARIZATION_UUID=$(xcrun notarytool submit "$DMG_NAME" --apple-id "$NOTARIZATION_ACCOUNT" --password "$NOTARIZATION_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait | grep -o '[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}' | head -1)
 
 echo -e "${GREEN}📋 Notarization UUID: $NOTARIZATION_UUID${NC}"
 
 # Check notarization status
-xcrun notarytool info "$NOTARIZATION_UUID" --apple-id "$NOTARIZATION_ACCOUNT" --password "ngcx-mlls-ngmm-tzgw" --team-id "$APPLE_TEAM_ID"
+xcrun notarytool info "$NOTARIZATION_UUID" --apple-id "$NOTARIZATION_ACCOUNT" --password "$NOTARIZATION_PASSWORD" --team-id "$APPLE_TEAM_ID"
 
 # Staple the notarization ticket
 echo -e "${YELLOW}📌 Stapling notarization ticket...${NC}"

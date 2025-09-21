@@ -1,0 +1,48 @@
+# Build artifacts
+.build/
+dist/
+
+# macOS
+.DS_Store
+
+# Xcode
+*.xcworkspace/
+*.xcodeproj/
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+
+# Environment and credential files (SECURITY)
+.env
+.env.local
+.env.*.local
+.secrets
+credentials.json
+*.key
+*.pem
+*.p12
+*.pfx
+config.json
+secrets.json
+
+# Apple Developer credentials (SECURITY)
+apple_id.txt
+notarization_password.txt
+developer_id.txt
+
+# Backup files
+*.bak
+*~
